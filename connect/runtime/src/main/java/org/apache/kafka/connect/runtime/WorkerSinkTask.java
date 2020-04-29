@@ -459,7 +459,8 @@ class WorkerSinkTask extends WorkerTask {
     }
 
     private void convertMessages(ConsumerRecords<byte[], byte[]> msgs) {
-        origOffsets.clear();
+        if (msgs.count() > 0)
+            origOffsets.clear();
         for (ConsumerRecord<byte[], byte[]> msg : msgs) {
             log.trace("{} Consuming and converting message in topic '{}' partition {} at offset {} and timestamp {}",
                     this, msg.topic(), msg.partition(), msg.offset(), msg.timestamp());
@@ -574,7 +575,7 @@ class WorkerSinkTask extends WorkerTask {
         if (offsets.isEmpty()) {
             return;
         }
-        for (Map.Entry<TopicPartition, Long> entry: offsets.entrySet()) {
+        for (Map.Entry<TopicPartition, Long> entry : offsets.entrySet()) {
             TopicPartition tp = entry.getKey();
             Long offset = entry.getValue();
             if (offset != null) {
@@ -706,8 +707,8 @@ class WorkerSinkTask extends WorkerTask {
 
             ConnectMetricsRegistry registry = connectMetrics.registry();
             metricGroup = connectMetrics
-                                  .group(registry.sinkTaskGroupName(), registry.connectorTagName(), id.connector(), registry.taskTagName(),
-                                         Integer.toString(id.task()));
+                    .group(registry.sinkTaskGroupName(), registry.connectorTagName(), id.connector(), registry.taskTagName(),
+                            Integer.toString(id.task()));
             // prevent collisions by removing any previously created metrics in this group.
             metricGroup.close();
 
